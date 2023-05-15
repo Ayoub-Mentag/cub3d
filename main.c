@@ -2,19 +2,19 @@
 
 int grid[15][15] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
 
@@ -28,14 +28,14 @@ void	my_mlx_pixel_put(t_all *all, int x, int y, int color)
 
 void    draw_line(t_all *all)
 {
-    int side = all->player->side;
+    // int side = all->player->side;
     // //draw line
     t_point a, b;
-    a.x = all->player->coor.x + (sqrt(2) * side * sin(M_PI / 4) * 0.5);
-    a.y = all->player->coor.y + (sqrt(2) * side * sin(M_PI / 4) * 0.5);
+    a.x = all->player->coor.x;
+    a.y = all->player->coor.y;
 
-    b.x = all->player->coor.x + (sqrt(2) * side * sin(M_PI / 4) * 0.5) + cos(all->player->rotationAngle) * 30;
-    b.y = all->player->coor.y + (sqrt(2) * side * sin(M_PI / 4) * 0.5) + sin(all->player->rotationAngle) * 30;
+    b.x = all->player->coor.x + cos(all->player->rotationAngle) * 30;
+    b.y = all->player->coor.y + sin(all->player->rotationAngle) * 30;
 
     int dx = b.x - a.x;
     int dy = b.y - a.y;
@@ -61,15 +61,14 @@ void    draw_line(t_all *all)
 
 void    draw_player(t_all *all)
 {
-    for (int i = 0; i < all->player->side; i++)
+    for (int i = - all->player->side / 2; i < all->player->side / 2; i++)
 	{
-		for (int j = 0; j < all->player->side; j++)
+		for (int j = - all->player->side / 2; j < all->player->side / 2; j++)
 		{
 			my_mlx_pixel_put(all, all->player->coor.x + j, all->player->coor.y + i, 0x00FF0000);
 		}
     }
 }
-
 
 void    update_coordination(t_all *all)
 {
@@ -77,21 +76,30 @@ void    update_coordination(t_all *all)
 	int moveStep = all->player->walkDirection * all->player->moveSpeed;
 	double newPlayerX = all->player->coor.x + cos(all->player->rotationAngle) * moveStep;
     double newPlayerY = all->player->coor.y + sin(all->player->rotationAngle) * moveStep;
+
+    int d1 = newPlayerX / 32;
+    int d2 = newPlayerY / 32;
+    printf("new(%d, %d)\n", d1, d2);
+    if (grid[d2][d1] == 1 || grid[d2][d1] == 2)
+        return ;
 	all->player->coor.x = newPlayerX;
 	all->player->coor.y = newPlayerY;
 }
 
 int    draw_map(t_all *all)
 {
+    static int i;
     int d1;
     int d2;
     int color;
 
+    printf("i : %d\n", i);
+    i++;
     update_coordination(all);
 	mlx_put_image_to_window(all->mlx, all->win, all->data.img, 0, 0);
     for (int i = 0; i < WINDOW_HEIGHT; i++)
     {
-        for (int j = 0; j < 640; j++)
+        for (int j = 0; j < WINDOW_WIDTH; j++)
         {
 			d1 = i / 32;
 			d2 = j / 32;
@@ -100,7 +108,7 @@ int    draw_map(t_all *all)
             //     player->playerX = d1 * 32;
             //     player->playerY = d2 * 32;
             // }
-			color = d1 >= 15 || d2 >= 15 || grid[d1][d2] == 1 ? 0x000000 : 0xFFFFFF;
+            color = d1 >= 15 || d2 >= 15 || grid[d1][d2] == 1 ? 0x000000 : 0xFFFFFF;
 			my_mlx_pixel_put(all, j, i, color);
 		}
 	}
@@ -169,7 +177,7 @@ int	key_hook(int key, void *p)
 	}
 	else if (key == 53)
 		exit(0);
-	// draw_map(all->mlx, all->win, all->player);
+	draw_map(all);
 	return (0);
 }
 
@@ -187,10 +195,10 @@ int main()
 {
     t_all   *all = init_all();
 
+	// draw_map(all);
     mlx_hook(all->win, 2, 0, key_hook, all);
     mlx_hook(all->win, 3, 0, key_released, all);
     mlx_loop_hook(all->mlx, draw_map, all);
     mlx_loop(all->mlx);
     return 0;
 }
-
