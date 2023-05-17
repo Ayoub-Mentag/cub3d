@@ -1,5 +1,5 @@
-SRC = main.c
-SRC_OBJ = main.o
+SRC = main.c utils.c
+SRC_OBJ = main.o utils.o
 CFLAGS = -Wall -Wextra -Werror -g -fsanitize=address
 LINKS = -lmlx -framework OpenGL -framework AppKit
 

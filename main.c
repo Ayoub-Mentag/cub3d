@@ -1,5 +1,4 @@
 #include "cub3d.h"
-
 int grid[15][15] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
@@ -17,7 +16,6 @@ int grid[15][15] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
-
 void	my_mlx_pixel_put(t_all *all, int x, int y, int color)
 {
 	char	*dst;
@@ -26,17 +24,42 @@ void	my_mlx_pixel_put(t_all *all, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-void    draw_line(t_all *all)
+// void    draw_line(t_all *all)
+// {
+//     // int side = all->player->side;
+//     // //draw line
+//     t_point a, b;
+//     a.x = all->player->coor.x;
+//     a.y = all->player->coor.y;
+
+//     b.x = all->player->coor.x + cos(all->player->rotationAngle) * 30;
+//     b.y = all->player->coor.y + sin(all->player->rotationAngle) * 30;
+
+//     int dx = b.x - a.x;
+//     int dy = b.y - a.y;
+//     // int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+//     int steps = dx * dx + dy * dy;
+//     float x_increment = dx / (float) steps;
+//     float y_increment = dy / (float) steps;
+//     float x = a.x;
+//     float y = a.y;
+//     int i;
+
+//     for (i = 0; i <= steps; i++)
+//     {
+// 		my_mlx_pixel_put(
+//             all,
+//             x,
+//             y,
+//             0x00000000);
+//         x += x_increment;
+//         y += y_increment;
+//     }
+// }
+
+
+void    draw_line(t_all *all, t_point a, t_point b)
 {
-    // int side = all->player->side;
-    // //draw line
-    t_point a, b;
-    a.x = all->player->coor.x;
-    a.y = all->player->coor.y;
-
-    b.x = all->player->coor.x + cos(all->player->rotationAngle) * 30;
-    b.y = all->player->coor.y + sin(all->player->rotationAngle) * 30;
-
     int dx = b.x - a.x;
     int dy = b.y - a.y;
     // int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
@@ -53,7 +76,7 @@ void    draw_line(t_all *all)
             all,
             x,
             y,
-            0x00000000);
+            0x00ff00);
         x += x_increment;
         y += y_increment;
     }
@@ -79,22 +102,39 @@ void    update_coordination(t_all *all)
 
     int d1 = newPlayerX / 32;
     int d2 = newPlayerY / 32;
-    printf("new(%d, %d)\n", d1, d2);
+
     if (grid[d2][d1] == 1 || grid[d2][d1] == 2)
         return ;
 	all->player->coor.x = newPlayerX;
 	all->player->coor.y = newPlayerY;
 }
 
+void    draw_rays(t_all *all)
+{
+    t_point origin, end;
+    double  rayAngle;
+    double  angle;
+    // double     length_ray = 0;
+
+    angle = all->player->rotationAngle - (M_PI / 6);
+    origin.x = all->player->coor.x;
+    origin.y = all->player->coor.y;
+    rayAngle = (M_PI / (3 * NUMBER_RAYS));
+    // for (int i = 0; i < NUMBER_RAYS; i++)
+    // {
+        // length_ray = get_length_of_ray(origin, angle);
+        end = get_length_of_ray(origin, angle);
+        draw_line(all, origin, end);
+        angle += rayAngle;
+    // }
+}
+
 int    draw_map(t_all *all)
 {
-    static int i;
     int d1;
     int d2;
     int color;
 
-    printf("i : %d\n", i);
-    i++;
     update_coordination(all);
 	mlx_put_image_to_window(all->mlx, all->win, all->data.img, 0, 0);
     for (int i = 0; i < WINDOW_HEIGHT; i++)
@@ -114,7 +154,8 @@ int    draw_map(t_all *all)
 	}
 
     draw_player(all);
-    draw_line(all);
+    draw_rays(all);
+    // draw_line(all);
     return (0);
 }
 

@@ -10,12 +10,16 @@
 
 # define WINDOW_WIDTH 640
 # define WINDOW_HEIGHT 480
+# define NUMBER_RAYS 320
+# define SIDE 32
 
 # define UP_ARROW 126
 # define DOWN_ARROW 125
 # define RIGHT_ARROW 124
 # define LEFT_ARROW 123
 
+
+extern int grid[15][15];
 
 typedef struct	s_data {
 	void	*img;
@@ -49,5 +53,7 @@ typedef struct s_all
     void            *win;
     struct s_player *player;
 } t_all;
+
+t_point get_length_of_ray(t_point player, double angle);
 
 # endif
