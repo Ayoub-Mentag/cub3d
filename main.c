@@ -6,7 +6,7 @@ int grid[15][15] = {
     {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1},
@@ -16,6 +16,7 @@ int grid[15][15] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
+
 void	my_mlx_pixel_put(t_all *all, int x, int y, int color)
 {
 	char	*dst;
@@ -62,8 +63,8 @@ void    draw_line(t_all *all, t_point a, t_point b)
 {
     int dx = b.x - a.x;
     int dy = b.y - a.y;
-    // int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
-    int steps = dx * dx + dy * dy;
+    int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+    // int steps = dx * dx + dy * dy;
     float x_increment = dx / (float) steps;
     float y_increment = dy / (float) steps;
     float x = a.x;
@@ -95,6 +96,7 @@ void    draw_player(t_all *all)
 
 void    update_coordination(t_all *all)
 {
+
 	all->player->rotationAngle += all->player->turnDirection * all->player->rotationSpeed;
 	int moveStep = all->player->walkDirection * all->player->moveSpeed;
 	double newPlayerX = all->player->coor.x + cos(all->player->rotationAngle) * moveStep;
@@ -103,7 +105,7 @@ void    update_coordination(t_all *all)
     int d1 = newPlayerX / 32;
     int d2 = newPlayerY / 32;
 
-    if (grid[d2][d1] == 1 || grid[d2][d1] == 2)
+    if (grid[d2][d1] == 1)
         return ;
 	all->player->coor.x = newPlayerX;
 	all->player->coor.y = newPlayerY;
@@ -120,13 +122,13 @@ void    draw_rays(t_all *all)
     origin.x = all->player->coor.x;
     origin.y = all->player->coor.y;
     rayAngle = (M_PI / (3 * NUMBER_RAYS));
-    // for (int i = 0; i < NUMBER_RAYS; i++)
-    // {
+    for (int i = 0; i < NUMBER_RAYS; i++)
+    {
         // length_ray = get_length_of_ray(origin, angle);
         end = get_length_of_ray(origin, angle);
         draw_line(all, origin, end);
         angle += rayAngle;
-    // }
+    }
 }
 
 int    draw_map(t_all *all)
@@ -134,7 +136,6 @@ int    draw_map(t_all *all)
     int d1;
     int d2;
     int color;
-
     update_coordination(all);
 	mlx_put_image_to_window(all->mlx, all->win, all->data.img, 0, 0);
     for (int i = 0; i < WINDOW_HEIGHT; i++)
@@ -143,11 +144,6 @@ int    draw_map(t_all *all)
         {
 			d1 = i / 32;
 			d2 = j / 32;
-            // if (d1 < 15 && d2 < 15 && grid[d1][d2] == 2)
-            // {
-            //     player->playerX = d1 * 32;
-            //     player->playerY = d2 * 32;
-            // }
             color = d1 >= 15 || d2 >= 15 || grid[d1][d2] == 1 ? 0x000000 : 0xFFFFFF;
 			my_mlx_pixel_put(all, j, i, color);
 		}
@@ -159,13 +155,27 @@ int    draw_map(t_all *all)
     return (0);
 }
 
+void    init_player(t_point *coor)
+{
+    for (int i = 0; i < 15; i++)
+    {
+        for (int j = 0; j < 15; j++)
+        {
+            if (grid[i][j] == 2)
+            {
+                coor->x = j * 32;
+                coor->y = i * 32;
+            }
+        }
+    }
+}
+
 t_player    *get_player()
 {
     t_player    *player = malloc(sizeof(t_player));
     if (!player)
         exit(1);
-    player->coor.x = WINDOW_WIDTH / 3;
-    player->coor.y = WINDOW_HEIGHT / 2;
+    init_player(&player->coor);
     player->side = 10;
     player->turnDirection = 0;
     player->walkDirection = 0;

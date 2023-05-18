@@ -1,94 +1,117 @@
 #include "cub3d.h"
 
-int hits_wall(t_point p)
-{
-    int i = p.y / 32;
-    int j = p.x / 32;
 
+double distanceBetweenPoints(double x1, double y1, double x2, double y2)
+{
+    return (sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+}
+
+int hits_wall(double x, double y)
+{
+    if (x < 0 || x > WINDOW_WIDTH || y < 0 || y > WINDOW_HEIGHT)
+        return 1;
+    int i = floor(y / 32);
+    int j = floor(x / 32);
+    if (i >= 15 || j >= 15)
+        return (1);
     return (grid[i][j] == 1);
 }
 
-t_point get_horizontal(t_point player, double angle, int down, int left)
+
+t_point get_point(t_point player, double angle, int down, int left)
 {
-    t_point first_intersection;
-    double  ystep;
-    double  xstep;
-    t_point i;
+    int foundHorzWallHit = 0, foundVertWallHit = 0;
+    double xstep, ystep;
+    t_point vertical, horizontal;
+    t_point first, i;
 
-    first_intersection.y = (floor(player.y / SIDE)) * SIDE;
-    first_intersection.y += down ? SIDE : 0;
+    // Find the y-coordinate of the closest horizontal grid intersenction
+    first.y = floor(player.y / TILE_SIZE) * TILE_SIZE;
+    first.y += down ? TILE_SIZE : 0;
 
-    first_intersection.x = player.x + ((first_intersection.y - player.y) / tan(angle));
+    printf("first(%f, %f)\n", first.x / 32, first.y / 32);
+    // Find the x-coordinate of the closest horizontal grid intersection
+    first.x = player.x + (first.y - player.y) / tan(angle);
 
-    printf("HORIZONTAL : first (%.2f, %.2f)\n", first_intersection.x, first_intersection.y);
-    ystep = SIDE;
+    // Calculate the increment xstep and ystep
+    ystep = TILE_SIZE;
     ystep *= !down ? -1 : 1;
 
-    xstep = SIDE / tan(angle);
+    xstep = TILE_SIZE / tan(angle);
     xstep *= (left && xstep > 0) ? -1 : 1;
     xstep *= (!left && xstep < 0) ? -1 : 1;
+    i.x = first.x;
+    i.y = first.y;
 
-    i.x = first_intersection.x;
-    i.y = first_intersection.y;
 
-    //why this
-    if (!down)
-        i.y--;
+    // if (!down)
+    //     i.y--;
 
-    while (i.y >= 0 && i.y <= WINDOW_HEIGHT && i.x >= 0 && i.x <= WINDOW_WIDTH)
-    {
-        if (hits_wall(i))
-            return (i);
-        i.x += xstep;
-        i.y += ystep;
+        // Increment xstep and ystep until we find a wall
+    while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) {
+        if (hits_wall(i.x, i.y - !down)) {
+            foundHorzWallHit = 1;
+            horizontal.x = i.x;
+            horizontal.y = i.y;
+            break;
+        } else {
+            i.x += xstep;
+            i.y += ystep;
+        }
     }
-    i.x = -1;
-    i.y = -1;
-    return (i);
-}
+        
 
+        // Find the x-coordinate of the closest vertical grid intersenction
+        first.x = floor(player.x / TILE_SIZE) * TILE_SIZE;
+        first.x += !left ? TILE_SIZE : 0;
 
-t_point get_vertical(t_point player, double angle, int down, int left)
-{
-    t_point first_intersection;
-    double  ystep;
-    double  xstep;
-    t_point i;
+        // Find the y-coordinate of the closest vertical grid intersection
+        first.y = player.y + (first.x - player.x) * tan(angle);
 
-    first_intersection.x = (floor(player.x / SIDE)) * SIDE;
-    first_intersection.x += !left ? SIDE : 0;
-    first_intersection.y = player.y + ((first_intersection.x - player.x) * tan(angle));
+        // Calculate the increment xstep and ystep
+        xstep = TILE_SIZE;
+        xstep *= left ? -1 : 1;
 
-    printf("VERTICAL : first (%.2f, %.2f)\n", first_intersection.x, first_intersection.y);
+        ystep = TILE_SIZE * tan(angle);
+        ystep *= (!down && ystep > 0) ? -1 : 1;
+        ystep *= (down && ystep < 0) ? -1 : 1;
 
-    xstep = SIDE;
-    xstep *= left ? -1 : 1;
+        i.x = first.x;
+        i.y = first.y;
 
-    ystep = SIDE * tan(angle);
-    ystep *= !down && ystep > 0 ? -1 : 1;
-    ystep *= down && ystep < 0 ? -1 : 1;
+        // if (left)
+        //     i.x--;
+        // Increment xstep and ystep until we find a wall
+        while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) {
+            // printf("Hello\n");
+            if (hits_wall(i.x - left, i.y)) {
+                vertical.x = i.x;
+                vertical.y = i.y;
+                foundVertWallHit = 1;
+                break;
+            } else {
+                i.x += xstep;
+                i.y += ystep;
+            }
+        }
 
-    i.x = first_intersection.x;
-    i.y = first_intersection.y;
+        // Calculate both horizontal and vertical distances and choose the smallest value
+        double horzHitDistance = (foundHorzWallHit)
+            ? distanceBetweenPoints(player.x, player.y, horizontal.x, horizontal.y)
+            : INT32_MAX;
+        double vertHitDistance = (foundVertWallHit)
+            ? distanceBetweenPoints(player.x, player.y, vertical.x, vertical.y)
+            : INT32_MAX;
 
-    if (left)
-        first_intersection.x--;
-
-    while (i.y >= 0 && i.y <= WINDOW_HEIGHT && i.x >= 0 && i.x <= WINDOW_WIDTH)
-    {
-        if (hits_wall(i))
-            return (i);
-        i.x += xstep;
-        i.y += ystep;
-    }
-    i.x = -1;
-    i.y = -1;
-    return (i);
+        t_point result;
+        // only store the smallest of the distances
+        result.x = (horzHitDistance < vertHitDistance) ? horizontal.x : vertical.x;
+        result.y = (horzHitDistance < vertHitDistance) ? horizontal.y : vertical.y;
+    return (result);
 }
 
 t_point get_length_of_ray(t_point player, double angle)
 {
-    double  hor, ver;
     angle = fmod(angle, 2 * M_PI);
     if (angle < 0) {
         angle = (2 * M_PI) + angle;
@@ -97,13 +120,6 @@ t_point get_length_of_ray(t_point player, double angle)
     int down = (angle > 0 && angle < M_PI) ? 1 : 0;
     int left = (angle <= 1.5 * M_PI && angle >= M_PI * 0.5) ? 1 : 0;
 
-    t_point hor_intersection = get_horizontal(player, angle, down, left);
-    t_point ver_intersection = get_vertical(player, angle, down, left);
-    // printf("hor (%.2f, %.2f) ; ver (%.2f, %.2f)\n", hor_intersection.x, hor_intersection.y, ver_intersection.x, ver_intersection.y);
-
-    hor = hor_intersection.x != -1 ? sqrt(pow(player.x - hor_intersection.x, 2) + pow(player.y - hor_intersection.y, 2)) : INT32_MAX;
-    ver = ver_intersection.x != -1 ? sqrt(pow(player.x - ver_intersection.x, 2) + pow(player.y - ver_intersection.y, 2)) : INT32_MAX;
-    t_point result = hor < ver ? hor_intersection : ver_intersection;
-    hor < ver ? printf("VER\n") : printf("HOR\n");
+    t_point result = get_point(player, angle, down, left);
     return (result);
 }

@@ -10,8 +10,10 @@
 
 # define WINDOW_WIDTH 640
 # define WINDOW_HEIGHT 480
-# define NUMBER_RAYS 320
+# define NUMBER_RAYS 100
 # define SIDE 32
+# define TILE_SIZE 32
+
 
 # define UP_ARROW 126
 # define DOWN_ARROW 125
