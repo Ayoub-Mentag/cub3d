@@ -17,19 +17,60 @@ int hits_wall(double x, double y)
     return (grid[i][j] == 1);
 }
 
-
-t_point get_point(t_point player, double angle, int down, int left)
+t_point get_vertical(t_point player, double angle, int down, int left, int *foundVertWallHit)
 {
-    int foundHorzWallHit = 0, foundVertWallHit = 0;
     double xstep, ystep;
-    t_point vertical, horizontal;
+    t_point vertical;
+    t_point first, i;
+
+    // Find the x-coordinate of the closest vertical grid intersenction
+    first.x = floor(player.x / TILE_SIZE) * TILE_SIZE;
+    first.x += !left ? TILE_SIZE : 0;
+
+    // Find the y-coordinate of the closest vertical grid intersection
+    first.y = player.y + (first.x - player.x) * tan(angle);
+
+    // Calculate the increment xstep and ystep
+    xstep = TILE_SIZE;
+    xstep *= left ? -1 : 1;
+
+    ystep = TILE_SIZE * tan(angle);
+    ystep *= (!down && ystep > 0) ? -1 : 1;
+    ystep *= (down && ystep < 0) ? -1 : 1;
+
+    i.x = first.x;
+    i.y = first.y;
+
+    // if (left)
+    //     i.x--;
+    // Increment xstep and ystep until we find a wall
+    // while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) 
+    while (1)
+    {
+        // printf("Hello\n");
+        if (hits_wall(i.x - left, i.y)) {
+            vertical.x = i.x;
+            vertical.y = i.y;
+            *foundVertWallHit = 1;
+            break;
+        } else {
+            i.x += xstep;
+            i.y += ystep;
+        }
+    }
+    return (vertical);
+}
+
+t_point get_horizontal(t_point player, double angle, int down, int left, int *foundHorzWallHit)
+{
+    double xstep, ystep;
+    t_point horizontal;
     t_point first, i;
 
     // Find the y-coordinate of the closest horizontal grid intersenction
     first.y = floor(player.y / TILE_SIZE) * TILE_SIZE;
     first.y += down ? TILE_SIZE : 0;
 
-    printf("first(%f, %f)\n", first.x / 32, first.y / 32);
     // Find the x-coordinate of the closest horizontal grid intersection
     first.x = player.x + (first.y - player.y) / tan(angle);
 
@@ -37,20 +78,19 @@ t_point get_point(t_point player, double angle, int down, int left)
     ystep = TILE_SIZE;
     ystep *= !down ? -1 : 1;
 
-    xstep = TILE_SIZE / tan(angle);
+    xstep = TILE_SIZE/ tan(angle);
     xstep *= (left && xstep > 0) ? -1 : 1;
     xstep *= (!left && xstep < 0) ? -1 : 1;
     i.x = first.x;
     i.y = first.y;
 
 
-    // if (!down)
-    //     i.y--;
-
-        // Increment xstep and ystep until we find a wall
-    while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) {
+    // Increment xstep and ystep until we find a wall
+    // while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) 
+    while (1)
+    {
         if (hits_wall(i.x, i.y - !down)) {
-            foundHorzWallHit = 1;
+            *foundHorzWallHit = 1;
             horizontal.x = i.x;
             horizontal.y = i.y;
             break;
@@ -59,41 +99,82 @@ t_point get_point(t_point player, double angle, int down, int left)
             i.y += ystep;
         }
     }
-        
+    return (horizontal);
+}
 
-        // Find the x-coordinate of the closest vertical grid intersenction
-        first.x = floor(player.x / TILE_SIZE) * TILE_SIZE;
-        first.x += !left ? TILE_SIZE : 0;
+t_point get_point(t_point player, double angle, int down, int left)
+{
+    int foundHorzWallHit = 0, foundVertWallHit = 0;
+    // double xstep, ystep;
+    // t_point vertical, horizontal;
+    // t_point first, i;
 
-        // Find the y-coordinate of the closest vertical grid intersection
-        first.y = player.y + (first.x - player.x) * tan(angle);
+    // // Find the y-coordinate of the closest horizontal grid intersenction
+    // first.y = floor(player.y / TILE_SIZE) * TILE_SIZE;
+    // first.y += down ? TILE_SIZE : 0;
 
-        // Calculate the increment xstep and ystep
-        xstep = TILE_SIZE;
-        xstep *= left ? -1 : 1;
+    // // Find the x-coordinate of the closest horizontal grid intersection
+    // first.x = player.x + (first.y - player.y) / tan(angle);
 
-        ystep = TILE_SIZE * tan(angle);
-        ystep *= (!down && ystep > 0) ? -1 : 1;
-        ystep *= (down && ystep < 0) ? -1 : 1;
+    // // Calculate the increment xstep and ystep
+    // ystep = TILE_SIZE;
+    // ystep *= !down ? -1 : 1;
 
-        i.x = first.x;
-        i.y = first.y;
+    // xstep = TILE_SIZE/ tan(angle);
+    // xstep *= (left && xstep > 0) ? -1 : 1;
+    // xstep *= (!left && xstep < 0) ? -1 : 1;
+    // i.x = first.x;
+    // i.y = first.y;
 
-        // if (left)
-        //     i.x--;
-        // Increment xstep and ystep until we find a wall
-        while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) {
-            // printf("Hello\n");
-            if (hits_wall(i.x - left, i.y)) {
-                vertical.x = i.x;
-                vertical.y = i.y;
-                foundVertWallHit = 1;
-                break;
-            } else {
-                i.x += xstep;
-                i.y += ystep;
-            }
-        }
+
+    // // Increment xstep and ystep until we find a wall
+    // while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) {
+    //     if (hits_wall(i.x, i.y - !down)) {
+    //         foundHorzWallHit = 1;
+    //         horizontal.x = i.x;
+    //         horizontal.y = i.y;
+    //         break;
+    //     } else {
+    //         i.x += xstep;
+    //         i.y += ystep;
+    //     }
+    // }
+    t_point horizontal = get_horizontal(player, angle, down, left, &foundHorzWallHit);
+    t_point vertical = get_vertical(player, angle, down, left, &foundVertWallHit);
+
+        // // Find the x-coordinate of the closest vertical grid intersenction
+        // first.x = floor(player.x / TILE_SIZE) * TILE_SIZE;
+        // first.x += !left ? TILE_SIZE : 0;
+
+        // // Find the y-coordinate of the closest vertical grid intersection
+        // first.y = player.y + (first.x - player.x) * tan(angle);
+
+        // // Calculate the increment xstep and ystep
+        // xstep = TILE_SIZE;
+        // xstep *= left ? -1 : 1;
+
+        // ystep = TILE_SIZE * tan(angle);
+        // ystep *= (!down && ystep > 0) ? -1 : 1;
+        // ystep *= (down && ystep < 0) ? -1 : 1;
+
+        // i.x = first.x;
+        // i.y = first.y;
+
+        // // if (left)
+        // //     i.x--;
+        // // Increment xstep and ystep until we find a wall
+        // while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) {
+        //     // printf("Hello\n");
+        //     if (hits_wall(i.x - left, i.y)) {
+        //         vertical.x = i.x;
+        //         vertical.y = i.y;
+        //         foundVertWallHit = 1;
+        //         break;
+        //     } else {
+        //         i.x += xstep;
+        //         i.y += ystep;
+        //     }
+        // }
 
         // Calculate both horizontal and vertical distances and choose the smallest value
         double horzHitDistance = (foundHorzWallHit)

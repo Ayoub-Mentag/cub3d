@@ -25,58 +25,22 @@ void	my_mlx_pixel_put(t_all *all, int x, int y, int color)
 	*(unsigned int*)dst = color;
 }
 
-// void    draw_line(t_all *all)
-// {
-//     // int side = all->player->side;
-//     // //draw line
-//     t_point a, b;
-//     a.x = all->player->coor.x;
-//     a.y = all->player->coor.y;
-
-//     b.x = all->player->coor.x + cos(all->player->rotationAngle) * 30;
-//     b.y = all->player->coor.y + sin(all->player->rotationAngle) * 30;
-
-//     int dx = b.x - a.x;
-//     int dy = b.y - a.y;
-//     // int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
-//     int steps = dx * dx + dy * dy;
-//     float x_increment = dx / (float) steps;
-//     float y_increment = dy / (float) steps;
-//     float x = a.x;
-//     float y = a.y;
-//     int i;
-
-//     for (i = 0; i <= steps; i++)
-//     {
-// 		my_mlx_pixel_put(
-//             all,
-//             x,
-//             y,
-//             0x00000000);
-//         x += x_increment;
-//         y += y_increment;
-//     }
-// }
-
-
 void    draw_line(t_all *all, t_point a, t_point b)
 {
-    int dx = b.x - a.x;
-    int dy = b.y - a.y;
+    int dx = (b.x - a.x);
+    int dy = (b.y - a.y);
     int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
-    // int steps = dx * dx + dy * dy;
     float x_increment = dx / (float) steps;
     float y_increment = dy / (float) steps;
     float x = a.x;
     float y = a.y;
-    int i;
 
-    for (i = 0; i <= steps; i++)
+    for (int i = 0; i <= steps; i++)
     {
 		my_mlx_pixel_put(
             all,
-            x,
-            y,
+            x * MINIMAP_SCALE_FACTORY,
+            y * MINIMAP_SCALE_FACTORY,
             0x00ff00);
         x += x_increment;
         y += y_increment;
@@ -85,26 +49,33 @@ void    draw_line(t_all *all, t_point a, t_point b)
 
 void    draw_player(t_all *all)
 {
-    for (int i = - all->player->side / 2; i < all->player->side / 2; i++)
+    int half;
+
+    half = all->player->side / 2;
+    for (int i = - half ; i < half; i++)
 	{
-		for (int j = - all->player->side / 2; j < all->player->side / 2; j++)
+		for (int j = - half; j < half; j++)
 		{
-			my_mlx_pixel_put(all, all->player->coor.x + j, all->player->coor.y + i, 0x00FF0000);
+			my_mlx_pixel_put(all, (all->player->coor.x + j) * MINIMAP_SCALE_FACTORY, (all->player->coor.y + i) * MINIMAP_SCALE_FACTORY, 0x00FF0000);
 		}
     }
 }
 
 void    update_coordination(t_all *all)
 {
+	int		d1;
+	int		d2;
+	double	newPlayerX;
+	double	newPlayerY;
+	double	moveStep;
 
 	all->player->rotationAngle += all->player->turnDirection * all->player->rotationSpeed;
-	int moveStep = all->player->walkDirection * all->player->moveSpeed;
-	double newPlayerX = all->player->coor.x + cos(all->player->rotationAngle) * moveStep;
-    double newPlayerY = all->player->coor.y + sin(all->player->rotationAngle) * moveStep;
+	moveStep = all->player->walkDirection * all->player->moveSpeed * MINIMAP_SCALE_FACTORY;
+	newPlayerX = all->player->coor.x + cos(all->player->rotationAngle) * moveStep;
+    newPlayerY = all->player->coor.y + sin(all->player->rotationAngle) * moveStep;
 
-    int d1 = newPlayerX / 32;
-    int d2 = newPlayerY / 32;
-
+	d1 = newPlayerX / TILE_SIZE;
+	d2 = newPlayerY / TILE_SIZE;
     if (grid[d2][d1] == 1)
         return ;
 	all->player->coor.x = newPlayerX;
@@ -113,22 +84,21 @@ void    update_coordination(t_all *all)
 
 void    draw_rays(t_all *all)
 {
-    t_point origin, end;
-    double  rayAngle;
-    double  angle;
-    // double     length_ray = 0;
+	t_point	origin;
+	t_point	end;
+	double	rayAngle;
+	double	angle;
 
-    angle = all->player->rotationAngle - (M_PI / 6);
-    origin.x = all->player->coor.x;
-    origin.y = all->player->coor.y;
-    rayAngle = (M_PI / (3 * NUMBER_RAYS));
-    for (int i = 0; i < NUMBER_RAYS; i++)
-    {
-        // length_ray = get_length_of_ray(origin, angle);
-        end = get_length_of_ray(origin, angle);
-        draw_line(all, origin, end);
-        angle += rayAngle;
-    }
+	angle = all->player->rotationAngle - (M_PI / 6);
+	origin.x = all->player->coor.x;
+	origin.y = all->player->coor.y;
+	rayAngle = (M_PI / (3 * NUMBER_RAYS));
+	for (int i = 0; i < NUMBER_RAYS; i++)
+	{
+	    end = get_length_of_ray(origin, angle);
+	    draw_line(all, origin, end);
+	    angle += rayAngle;
+	}
 }
 
 int    draw_map(t_all *all)
@@ -145,13 +115,11 @@ int    draw_map(t_all *all)
 			d1 = i / 32;
 			d2 = j / 32;
             color = d1 >= 15 || d2 >= 15 || grid[d1][d2] == 1 ? 0x000000 : 0xFFFFFF;
-			my_mlx_pixel_put(all, j, i, color);
+			my_mlx_pixel_put(all, j * MINIMAP_SCALE_FACTORY, i * MINIMAP_SCALE_FACTORY, color);
 		}
 	}
-
     draw_player(all);
     draw_rays(all);
-    // draw_line(all);
     return (0);
 }
 
@@ -163,8 +131,8 @@ void    init_player(t_point *coor)
         {
             if (grid[i][j] == 2)
             {
-                coor->x = j * 32;
-                coor->y = i * 32;
+                coor->x = j * TILE_SIZE;
+                coor->y = i * TILE_SIZE;
             }
         }
     }
@@ -196,7 +164,7 @@ t_all   *init_all()
     all->mlx = mlx;
     all->win = win;
 
-    all->data.img = mlx_new_image(all->mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
+    all->data.img = mlx_new_image(all->mlx, WINDOW_WIDTH * MINIMAP_SCALE_FACTORY, WINDOW_HEIGHT  * MINIMAP_SCALE_FACTORY);
 	all->data.addr = mlx_get_data_addr(all->data.img, &all->data.bits_per_pixel, &all->data.line_length,&all->data.endian);
     return (all);
 }
@@ -228,7 +196,6 @@ int	key_hook(int key, void *p)
 	}
 	else if (key == 53)
 		exit(0);
-	draw_map(all);
 	return (0);
 }
 
@@ -246,7 +213,6 @@ int main()
 {
     t_all   *all = init_all();
 
-	// draw_map(all);
     mlx_hook(all->win, 2, 0, key_hook, all);
     mlx_hook(all->win, 3, 0, key_released, all);
     mlx_loop_hook(all->mlx, draw_map, all);
