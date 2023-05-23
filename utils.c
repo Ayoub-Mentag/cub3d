@@ -102,105 +102,60 @@ t_point get_horizontal(t_point player, double angle, int down, int left, int *fo
     return (horizontal);
 }
 
-t_point get_point(t_point player, double angle, int down, int left)
+void    set_point(t_point player, t_ray *ray, int down, int left)
 {
     int foundHorzWallHit = 0, foundVertWallHit = 0;
-    // double xstep, ystep;
-    // t_point vertical, horizontal;
-    // t_point first, i;
+    t_point horizontal = get_horizontal(player, ray->rayAngle, down, left, &foundHorzWallHit);
+    t_point vertical = get_vertical(player, ray->rayAngle, down, left, &foundVertWallHit);
 
-    // // Find the y-coordinate of the closest horizontal grid intersenction
-    // first.y = floor(player.y / TILE_SIZE) * TILE_SIZE;
-    // first.y += down ? TILE_SIZE : 0;
+    // Calculate both horizontal and vertical distances and choose the smallest value
+    double horzHitDistance = (foundHorzWallHit)
+        ? distanceBetweenPoints(player.x, player.y, horizontal.x, horizontal.y)
+        : INT32_MAX;
+    double vertHitDistance = (foundVertWallHit)
+        ? distanceBetweenPoints(player.x, player.y, vertical.x, vertical.y)
+        : INT32_MAX;
 
-    // // Find the x-coordinate of the closest horizontal grid intersection
-    // first.x = player.x + (first.y - player.y) / tan(angle);
-
-    // // Calculate the increment xstep and ystep
-    // ystep = TILE_SIZE;
-    // ystep *= !down ? -1 : 1;
-
-    // xstep = TILE_SIZE/ tan(angle);
-    // xstep *= (left && xstep > 0) ? -1 : 1;
-    // xstep *= (!left && xstep < 0) ? -1 : 1;
-    // i.x = first.x;
-    // i.y = first.y;
-
-
-    // // Increment xstep and ystep until we find a wall
-    // while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) {
-    //     if (hits_wall(i.x, i.y - !down)) {
-    //         foundHorzWallHit = 1;
-    //         horizontal.x = i.x;
-    //         horizontal.y = i.y;
-    //         break;
-    //     } else {
-    //         i.x += xstep;
-    //         i.y += ystep;
-    //     }
-    // }
-    t_point horizontal = get_horizontal(player, angle, down, left, &foundHorzWallHit);
-    t_point vertical = get_vertical(player, angle, down, left, &foundVertWallHit);
-
-        // // Find the x-coordinate of the closest vertical grid intersenction
-        // first.x = floor(player.x / TILE_SIZE) * TILE_SIZE;
-        // first.x += !left ? TILE_SIZE : 0;
-
-        // // Find the y-coordinate of the closest vertical grid intersection
-        // first.y = player.y + (first.x - player.x) * tan(angle);
-
-        // // Calculate the increment xstep and ystep
-        // xstep = TILE_SIZE;
-        // xstep *= left ? -1 : 1;
-
-        // ystep = TILE_SIZE * tan(angle);
-        // ystep *= (!down && ystep > 0) ? -1 : 1;
-        // ystep *= (down && ystep < 0) ? -1 : 1;
-
-        // i.x = first.x;
-        // i.y = first.y;
-
-        // // if (left)
-        // //     i.x--;
-        // // Increment xstep and ystep until we find a wall
-        // while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) {
-        //     // printf("Hello\n");
-        //     if (hits_wall(i.x - left, i.y)) {
-        //         vertical.x = i.x;
-        //         vertical.y = i.y;
-        //         foundVertWallHit = 1;
-        //         break;
-        //     } else {
-        //         i.x += xstep;
-        //         i.y += ystep;
-        //     }
-        // }
-
-        // Calculate both horizontal and vertical distances and choose the smallest value
-        double horzHitDistance = (foundHorzWallHit)
-            ? distanceBetweenPoints(player.x, player.y, horizontal.x, horizontal.y)
-            : INT32_MAX;
-        double vertHitDistance = (foundVertWallHit)
-            ? distanceBetweenPoints(player.x, player.y, vertical.x, vertical.y)
-            : INT32_MAX;
-
-        t_point result;
-        // only store the smallest of the distances
-        result.x = (horzHitDistance < vertHitDistance) ? horizontal.x : vertical.x;
-        result.y = (horzHitDistance < vertHitDistance) ? horizontal.y : vertical.y;
-    return (result);
+    // only store the smallest of the distances
+    if (horzHitDistance < vertHitDistance)
+    {
+        ray->hitvertical = false;
+        ray->coor.x = horizontal.x;
+        ray->coor.y = horizontal.y;
+    }
+    else 
+    {
+        ray->hitvertical = true;
+        ray->coor.x = vertical.x;
+        ray->coor.y = vertical.y;
+    }
+    ray->distance = sqrt(pow(ray->coor.x - player.x, 2) + pow(ray->coor.y - player.y, 2));
 }
 
-t_point get_length_of_ray(t_point player, double angle)
+int look_down(double rayAngle)
 {
-    angle = fmod(angle, 2 * M_PI);
-    if (angle < 0) {
-        angle = (2 * M_PI) + angle;
+    return (rayAngle > 0 && rayAngle < M_PI);
+}
+
+int look_left(double rayAngle)
+{
+    return (rayAngle <= 1.5 * M_PI && rayAngle >= M_PI * 0.5);
+}
+
+void    set_hitted_point(t_point player, t_ray *ray)
+{
+    // TODO : use the walkdirection and turndirection instead of down and left ?? 
+    //  TODO : like you do in rendering the minimap without clearing the window use when you render the 3d projection
+    int down, left;
+
+    ray->rayAngle = fmod(ray->rayAngle, 2 * M_PI);
+    if (ray->rayAngle < 0) {
+        ray->rayAngle = (2 * M_PI) + ray->rayAngle;
     }
 
-    int down = (angle > 0 && angle < M_PI) ? 1 : 0;
-    int left = (angle <= 1.5 * M_PI && angle >= M_PI * 0.5) ? 1 : 0;
-
-    t_point result = get_point(player, angle, down, left);
-    return (result);
+    // int down = (ray->rayAngle > 0 && ray->rayAngle < M_PI) ? 1 : 0;
+    // int left = (ray->rayAngle <= 1.5 * M_PI && ray->rayAngle >= M_PI * 0.5) ? 1 : 0;
+    down = look_down(ray->rayAngle);
+    left = look_left(ray->rayAngle);
+    set_point(player, ray, down, left);
 }

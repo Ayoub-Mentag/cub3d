@@ -7,21 +7,29 @@
 # include <mlx.h>
 # include <stdio.h>
 # include <math.h>
+# include <stdbool.h>
 
 # define WINDOW_WIDTH 640
 # define WINDOW_HEIGHT 480
-# define NUMBER_RAYS 320
+# define THICK 1
+# define NUMBER_RAYS (WINDOW_WIDTH / THICK)
 # define SIDE 32
 # define TILE_SIZE 32
-# define MINIMAP_SCALE_FACTORY 1
+# define MINIMAP_SCALE_FACTORY 0.2
 
 # define UP_ARROW 126
 # define DOWN_ARROW 125
 # define RIGHT_ARROW 124
 # define LEFT_ARROW 123
+# define MOVE_SPEED 2
+# define FOV_ANGLE (M_PI / 3)
 
+
+# define TEXT_WIDTH 32
+# define TEXT_HEIGHT 32
 
 extern int grid[15][15];
+
 
 typedef struct	s_data {
 	void	*img;
@@ -48,15 +56,27 @@ typedef struct s_player
     double          rotationSpeed;
 } t_player;
 
+typedef struct	s_ray
+{
+	double	distance;
+	double	rayAngle;
+	bool	hitvertical;
+	t_point	coor;
+}	t_ray;
 
 typedef struct s_all
 {
-    t_data          data;
-    void            *mlx;
-    void            *win;
-    struct s_player *player;
+    t_data			data;
+    void			*mlx;
+    void			*win;
+    t_player		*player;
+    t_ray			rays[NUMBER_RAYS];
 } t_all;
 
-t_point get_length_of_ray(t_point player, double angle);
+void    set_hitted_point(t_point player, t_ray *ray);
+void	my_mlx_pixel_put(t_all *all, int x, int y, int color);
+void	render3dProjection(t_all *all);
 
+
+uint32_t    **generate_simple_texture();
 # endif
