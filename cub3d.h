@@ -9,13 +9,13 @@
 # include <math.h>
 # include <stdbool.h>
 
-# define WINDOW_WIDTH 640
-# define WINDOW_HEIGHT 480
+# define WINDOW_WIDTH 1980
+# define WINDOW_HEIGHT 1024
 # define THICK 1
 # define NUMBER_RAYS (WINDOW_WIDTH / THICK)
 # define SIDE 32
 # define TILE_SIZE 32
-# define MINIMAP_SCALE_FACTORY 0.2
+# define MINIMAP_SCALE_FACTORY 0.5
 
 # define UP_ARROW 126
 # define DOWN_ARROW 125

@@ -15,13 +15,6 @@ int get_start_color(t_ray ray)
     return (index);
 }
 
-void	increment_p(t_point *p, int hitvertical)
-{
-	if (hitvertical)
-		(p->x)++;
-	else
-		(p->y)++;
-}
 
 void draw_rectangle(t_all *all, t_ray ray, int x, int height)
 {
@@ -44,31 +37,29 @@ void draw_rectangle(t_all *all, t_ray ray, int x, int height)
             }
         }
     }
-	if (ray.hitvertical)
-	{
-		p.x = 0;
-		p.y = (int)ray.coor.y % 32;
-	}
+	
+    p.y = 0;
+    if (ray.hitvertical)
+		p.x = fmod(ray.coor.y, TILE_SIZE);
 	else 
-	{
-		p.x = (int)ray.coor.x % 32;
-		p.y = 0;
-	}
+		p.x = fmod(ray.coor.x, TILE_SIZE);
+
     for (i = y; i < y + height; i++)
     {
         for (int j = x; j < x + THICK; j++)
         {
             if (i >= 0 && i < WINDOW_HEIGHT && j >= 0 && j < WINDOW_WIDTH)
             {
-				if (p.y > TEXT_HEIGHT)
-					p.y = 0;
-				if (p.x > TEXT_WIDTH)
-					p.x = 0;
-                my_mlx_pixel_put(all, j, i, simple_texture[(int)p.y][(int)p.x]);
-                increment_p(&p, ray.hitvertical);
+                my_mlx_pixel_put(all, j, i, simple_texture[(int)(p.y)][(int)(p.x)]);
+                (p.y)++;
+		        if (p.y >= TEXT_HEIGHT)
+			        p.y = 0;
             }
         }
     }
+    // exit(1);
+
+
 
 	color = 0xFF0000;
 	for (i = y + height; i < WINDOW_HEIGHT; i++)

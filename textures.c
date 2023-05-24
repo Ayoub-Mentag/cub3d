@@ -13,11 +13,10 @@ uint32_t    **generate_simple_texture()
         for (int j = 0; j < TEXT_WIDTH; j++)
         {
             if (i % 4 && j % 4)
-                simple_texture[i][j] = 0xFF0000FF;
+                simple_texture[i][j] = 0x00ff00;
             else
-                simple_texture[i][j] = 0x00000000;
+                simple_texture[i][j] = 0x000000;
         }
     }
     return (simple_texture);
 }
-

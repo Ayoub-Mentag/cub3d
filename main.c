@@ -107,7 +107,7 @@ void    draw_rays(t_all *all)
 {
     for (int i = 0; i < NUMBER_RAYS; i++)
 	{
-	    draw_line(all, all->player->coor, all->rays[i].coor);
+        draw_line(all, all->player->coor, all->rays[i].coor);
 	}
 }
 
@@ -245,13 +245,40 @@ int    loop(t_all *all)
     return (0);
 }
 
+void    draw_texture(t_all *all, uint32_t **simple, int x, int y)
+{
+    for (int i = 0; i < TEXT_HEIGHT; i++)
+    {
+        for (int j = 0; j < TEXT_WIDTH; j++)
+        {
+            my_mlx_pixel_put(all, j + x * 32, i + y * 32, simple[i][j]);
+        }
+    }
+}
+
+int    draw_simple_texture(t_all *all)
+{
+    uint32_t    **simple = generate_simple_texture();
+
+    mlx_put_image_to_window(all->mlx, all->win, all->data.img, 0, 0);
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     for (int j = 0; j < 10; j++)
+    //     {
+            draw_texture(all, simple, 0, 0);
+    //     }
+    // }
+    return (0);
+}
+
 int main()
 {
     t_all   *all = init_all();
-
     mlx_hook(all->win, 2, 0, key_hook, all);
     mlx_hook(all->win, 3, 0, key_released, all);
     mlx_loop_hook(all->mlx, loop, all);
+    // mlx_loop_hook(all->mlx, draw_simple_texture, all);
+
     mlx_loop(all->mlx);
     return 0;
 }
