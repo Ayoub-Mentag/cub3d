@@ -50,16 +50,11 @@ void draw_rectangle(t_all *all, t_ray ray, int x, int height)
         {
             if (i >= 0 && i < WINDOW_HEIGHT && j >= 0 && j < WINDOW_WIDTH)
             {
+                p.y = ((double)(i - y) / height) * TEXT_WIDTH;
                 my_mlx_pixel_put(all, j, i, simple_texture[(int)(p.y)][(int)(p.x)]);
-                (p.y)++;
-		        if (p.y >= TEXT_HEIGHT)
-			        p.y = 0;
             }
         }
     }
-    // exit(1);
-
-
 
 	color = 0xFF0000;
 	for (i = y + height; i < WINDOW_HEIGHT; i++)
@@ -75,7 +70,7 @@ void draw_rectangle(t_all *all, t_ray ray, int x, int height)
 }
 
 
-void    render3dProjection(t_all *all)
+void    render3d_projection(t_all *all)
 {
     double  correctDistance;
     double  distanceProjectionPlane;

@@ -26,15 +26,19 @@ void	my_mlx_pixel_put(t_all *all, int x, int y, int color)
 
 void    draw_line(t_all *all, t_point a, t_point b)
 {
-    int dx = (b.x - a.x);
-    int dy = (b.y - a.y);
-    int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
-    float x_increment = dx / (float) steps;
-    float y_increment = dy / (float) steps;
-    float x = a.x;
-    float y = a.y;
+    int steps;
+    double x_increment;
+    double y_increment;    
+    double x = a.x;
+    double y = a.y;
 
-    for (int i = 0; i <= steps; i++)
+    if (fabs(b.x - a.x) > fabs(b.y - a.y))
+        steps = fabs(b.x - a.x);
+    else
+        steps = fabs(b.y - a.y);
+    x_increment = (b.x - a.x) / (double) steps;
+    y_increment = (b.y - a.y) / (double) steps;
+    while (steps--)
     {
 		my_mlx_pixel_put(
             all,
@@ -49,14 +53,20 @@ void    draw_line(t_all *all, t_point a, t_point b)
 void    draw_player(t_all *all)
 {
     int half;
+    int i;
+    int j;
 
     half = all->player->side / 2;
-    for (int i = - half ; i < half; i++)
-	{
-		for (int j = - half; j < half; j++)
-		{
+    i = -half;
+    while (i < half)
+    {
+        j = -half;
+        while (j < half)
+        {
 			my_mlx_pixel_put(all, (all->player->coor.x + j) * MINIMAP_SCALE_FACTORY, (all->player->coor.y + i) * MINIMAP_SCALE_FACTORY, 0x00FF0000);
-		}
+            j++;
+        }
+        i++;
     }
 }
 
@@ -70,6 +80,7 @@ int    update_coordination(t_all *all)
 
     if (!all->player->turnDirection && !all->player->walkDirection)
         return (0);
+
 	all->player->rotationAngle += all->player->turnDirection * all->player->rotationSpeed;
 	moveStep = all->player->walkDirection * all->player->moveSpeed;
 	newPlayerX = all->player->coor.x + cos(all->player->rotationAngle) * moveStep;
@@ -80,6 +91,7 @@ int    update_coordination(t_all *all)
 
     if (grid[d2 / TILE_SIZE][d1 / TILE_SIZE] == 1)
         return (1);
+
 	all->player->coor.x = newPlayerX;
 	all->player->coor.y = newPlayerY;
     return (1);
@@ -90,70 +102,100 @@ void    set_rays(t_all *all)
     t_point	origin;
 	double	rayAngle;
 	double	angle;
+    int     i;
 
+    i = 0;
 	angle = all->player->rotationAngle - (M_PI / 6);
 	origin.x = all->player->coor.x;
 	origin.y = all->player->coor.y;
 	rayAngle = (M_PI / (3 * NUMBER_RAYS));
-	for (int i = 0; i < NUMBER_RAYS; i++)
-	{
+    while (i < NUMBER_RAYS)
+    {
         all->rays[i].rayAngle = angle;
         set_hitted_point(origin, &(all->rays[i]));
 	    angle += rayAngle;
-	}
+        i++;
+    }
 }
 
 void    draw_rays(t_all *all)
 {
-    for (int i = 0; i < NUMBER_RAYS; i++)
-	{
+    int i;
+
+    i = 0;
+    while (i < NUMBER_RAYS)
+    {
         draw_line(all, all->player->coor, all->rays[i].coor);
-	}
+        i++;
+    }
 }
 
 void    draw_square(t_all *all, int x, int y, int color)
 {
-    for (int i = y; i < y + TILE_SIZE; i++)
+    int i;
+    int j;
+
+    i = y;
+    while (i < y + TILE_SIZE)
     {
-        for (int j = x; j < x + TILE_SIZE; j++)
+        j = x;
+        while (j < x + TILE_SIZE)
         {
             my_mlx_pixel_put(all, j * MINIMAP_SCALE_FACTORY, i * MINIMAP_SCALE_FACTORY, color);
+            j++;
         }
+        i++;
     }
 }
 
-int    draw_map(t_all *all)
+void    draw_mini_map(t_all *all)
 {
     int color;
-    for (int i = 0; i < 15; i++)
+    int i;
+    int j;
+
+    i = 0;
+    while (i < 15)
     {
-        for (int j = 0; j < 15; j++)
+        j = 0;
+        while (j < 15)
         {
-            color = grid[i][j] == 1 ? 0x000000 : 0xFFFFFF;
+            if (grid[i][j] == 1)
+                color = 0x000000;
+            else
+                color = 0xFFFFFF;
             draw_square(all, j * TILE_SIZE, i * TILE_SIZE, color);
-		}
-	}
+            j++;
+        }
+        i++;
+    }
     draw_player(all);
     draw_rays(all);
-    return (0);
 }
 
 void    init_player(t_point *coor)
 {
-    for (int i = 0; i < 15; i++)
+    int i;
+    int j;
+
+    i = 0;
+    while (i < 15)
     {
-        for (int j = 0; j < 15; j++)
+        j = 0;
+        while (j < 15)
         {
             if (grid[i][j] == 2)
             {
                 coor->x = j * TILE_SIZE;
                 coor->y = i * TILE_SIZE;
-            }
+            } 
+            j++;
         }
+        i++;
     }
 }
 
-t_player    *get_player()
+void    set_player(t_all *all)
 {
     t_player    *player = malloc(sizeof(t_player));
     if (!player)
@@ -165,22 +207,22 @@ t_player    *get_player()
     player->rotationAngle = M_PI / 2;
     player->moveSpeed = MOVE_SPEED;
     player->rotationSpeed = 2 * (M_PI / 180);
-    return (player);
+    all->player = player;
 }
 
 t_all   *init_all()
 {
-    t_all *all = malloc(sizeof(t_all));
-    void *mlx = mlx_init();
-    void *win = mlx_new_window(mlx, WINDOW_WIDTH, WINDOW_HEIGHT, "Example");
-    t_player    *player = get_player();
+    t_all *all;
+    void *mlx;
+    void *win;
 
-
-    all->player = player;
+    all = malloc(sizeof(t_all));
+    mlx = mlx_init();
+    win = mlx_new_window(mlx, WINDOW_WIDTH, WINDOW_HEIGHT, "Example");
+    set_player(all);
     set_rays(all);
     all->mlx = mlx;
     all->win = win;
-
     all->data.img = mlx_new_image(all->mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
 	all->data.addr = mlx_get_data_addr(all->data.img, &all->data.bits_per_pixel, &all->data.line_length,&all->data.endian);
     return (all);
@@ -192,25 +234,13 @@ int	key_hook(int key, void *p)
 
 	all = (t_all *)p;
 	if (key == UP_ARROW)
-	{
-		// printf("Up pressed\n");
 		all->player->walkDirection = 1;
-	}
 	else if (key == DOWN_ARROW)
-	{
 		all->player->walkDirection = -1;
-		// printf("Down pressed\n");
-	}
 	else if (key == RIGHT_ARROW)
-	{
 		all->player->turnDirection = 1;
-		// printf("Right pressed\n");
-	}
 	else if (key == LEFT_ARROW)
-	{
 		all->player->turnDirection = -1;
-		// printf("left pressed\n");
-	}
 	else if (key == 53)
 		exit(0);
 	return (0);
@@ -219,55 +249,41 @@ int	key_hook(int key, void *p)
 int	key_released(int key, void *p)
 {
     t_all   *all;
+
 	(void)key;
     all = (t_all *)p;
     all->player->walkDirection = 0;
     all->player->turnDirection = 0;
-
     return (0);
 }
 
+void    clear_image(t_all *all)
+{
+    int i;
+    int j;
+
+    i = 0;
+    j = 0;
+    while (i < WINDOW_HEIGHT)
+    {
+        j = 0;
+        while (j < WINDOW_WIDTH)
+        {
+            my_mlx_pixel_put(all, j, i, 0x000000);
+            j++;
+        }
+        i++;
+    }
+}
 
 int    loop(t_all *all)
 {
     mlx_put_image_to_window(all->mlx, all->win, all->data.img, 0, 0);
-    for (int i = 0; i < WINDOW_HEIGHT; i++)
-    {
-        for (int j = 0; j < WINDOW_WIDTH; j++)
-        {
-            my_mlx_pixel_put(all, j, i, 0x000000);
-        } 
-    }
+    clear_image(all);
     update_coordination(all);
     set_rays(all);
-    render3dProjection(all);
-    draw_map(all);
-    return (0);
-}
-
-void    draw_texture(t_all *all, uint32_t **simple, int x, int y)
-{
-    for (int i = 0; i < TEXT_HEIGHT; i++)
-    {
-        for (int j = 0; j < TEXT_WIDTH; j++)
-        {
-            my_mlx_pixel_put(all, j + x * 32, i + y * 32, simple[i][j]);
-        }
-    }
-}
-
-int    draw_simple_texture(t_all *all)
-{
-    uint32_t    **simple = generate_simple_texture();
-
-    mlx_put_image_to_window(all->mlx, all->win, all->data.img, 0, 0);
-    // for (int i = 0; i < 10; i++)
-    // {
-    //     for (int j = 0; j < 10; j++)
-    //     {
-            draw_texture(all, simple, 0, 0);
-    //     }
-    // }
+    render3d_projection(all);
+    draw_mini_map(all);
     return (0);
 }
 
@@ -277,8 +293,6 @@ int main()
     mlx_hook(all->win, 2, 0, key_hook, all);
     mlx_hook(all->win, 3, 0, key_released, all);
     mlx_loop_hook(all->mlx, loop, all);
-    // mlx_loop_hook(all->mlx, draw_simple_texture, all);
-
     mlx_loop(all->mlx);
     return 0;
 }

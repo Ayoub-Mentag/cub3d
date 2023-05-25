@@ -75,7 +75,7 @@ typedef struct s_all
 
 void    set_hitted_point(t_point player, t_ray *ray);
 void	my_mlx_pixel_put(t_all *all, int x, int y, int color);
-void	render3dProjection(t_all *all);
+void	render3d_projection(t_all *all);
 
 
 uint32_t    **generate_simple_texture();
