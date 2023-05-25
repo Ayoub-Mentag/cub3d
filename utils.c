@@ -19,9 +19,10 @@ int hits_wall(double x, double y)
 
 t_point get_vertical(t_point player, double angle, int down, int left, int *foundVertWallHit)
 {
-    double xstep, ystep;
+    double  xstep;
+    double  ystep;
     t_point vertical;
-    t_point first, i;
+    t_point first;
 
     // Find the x-coordinate of the closest vertical grid intersenction
     first.x = floor(player.x / TILE_SIZE) * TILE_SIZE;
@@ -38,24 +39,20 @@ t_point get_vertical(t_point player, double angle, int down, int left, int *foun
     ystep *= (!down && ystep > 0) ? -1 : 1;
     ystep *= (down && ystep < 0) ? -1 : 1;
 
-    i.x = first.x;
-    i.y = first.y;
 
-    // if (left)
-    //     i.x--;
     // Increment xstep and ystep until we find a wall
-    // while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) 
+
     while (1)
     {
         // printf("Hello\n");
-        if (hits_wall(i.x - left, i.y)) {
-            vertical.x = i.x;
-            vertical.y = i.y;
+        if (hits_wall(first.x - left, first.y)) {
+            vertical.x = first.x;
+            vertical.y = first.y;
             *foundVertWallHit = 1;
             break;
         } else {
-            i.x += xstep;
-            i.y += ystep;
+            first.x += xstep;
+            first.y += ystep;
         }
     }
     return (vertical);
@@ -65,7 +62,7 @@ t_point get_horizontal(t_point player, double angle, int down, int left, int *fo
 {
     double xstep, ystep;
     t_point horizontal;
-    t_point first, i;
+    t_point first;
 
     // Find the y-coordinate of the closest horizontal grid intersenction
     first.y = floor(player.y / TILE_SIZE) * TILE_SIZE;
@@ -81,22 +78,20 @@ t_point get_horizontal(t_point player, double angle, int down, int left, int *fo
     xstep = TILE_SIZE/ tan(angle);
     xstep *= (left && xstep > 0) ? -1 : 1;
     xstep *= (!left && xstep < 0) ? -1 : 1;
-    i.x = first.x;
-    i.y = first.y;
 
 
     // Increment xstep and ystep until we find a wall
     // while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) 
     while (1)
     {
-        if (hits_wall(i.x, i.y - !down)) {
+        if (hits_wall(first.x, first.y - !down)) {
             *foundHorzWallHit = 1;
-            horizontal.x = i.x;
-            horizontal.y = i.y;
+            horizontal.x = first.x;
+            horizontal.y = first.y;
             break;
         } else {
-            i.x += xstep;
-            i.y += ystep;
+            first.x += xstep;
+            first.y += ystep;
         }
     }
     return (horizontal);

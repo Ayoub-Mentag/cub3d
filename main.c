@@ -224,7 +224,18 @@ t_all   *init_all()
     all->mlx = mlx;
     all->win = win;
     all->data.img = mlx_new_image(all->mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	all->data.addr = mlx_get_data_addr(all->data.img, &all->data.bits_per_pixel, &all->data.line_length,&all->data.endian);
+	all->data.addr = mlx_get_data_addr(all->data.img,   &all->data.bits_per_pixel, &all->data.line_length,&all->data.endian);
+
+    all->data_wall.img = mlx_xpm_file_to_image(mlx, "./textures/wall.xpm", malloc(sizeof(int)), malloc(sizeof(int)));
+    all->data_wall.addr = mlx_get_data_addr(all->data_wall.img, &all->data_wall.bits_per_pixel, &all->data_wall.line_length,&all->data_wall.endian);
+    all->array = malloc(sizeof(unsigned int) * TEXT_WIDTH * TEXT_HEIGHT);
+    for (int i = 0; i < TEXT_HEIGHT; i++)
+    {
+        for (int j = 0; j < TEXT_WIDTH; j++)
+        {
+            all->array[i * TEXT_HEIGHT + j] = *(unsigned int*)all->data_wall.addr + (i * all->data.line_length + j * (all->data.bits_per_pixel / 8));
+        }
+    }
     return (all);
 }
 
@@ -276,6 +287,32 @@ void    clear_image(t_all *all)
     }
 }
 
+void    draw_texture(t_all *all, uint32_t *simple, int x, int y)
+{
+    for (int i = 0; i < TEXT_HEIGHT; i++)
+    {
+        for (int j = 0; j < TEXT_WIDTH; j++)
+        {
+            my_mlx_pixel_put(all, j + x * 32, i + y * 32, simple[i * TEXT_HEIGHT + j]);
+        }
+    }
+}
+
+int    draw_simple_texture(t_all *all)
+{
+    uint32_t    *simple = generate_simple_texture();
+
+    mlx_put_image_to_window(all->mlx, all->win, all->data.img, 0, 0);
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     for (int j = 0; j < 10; j++)
+    //     {
+            draw_texture(all, simple, 0, 0);
+    //     }
+    // }
+    return (0);
+}
+
 int    loop(t_all *all)
 {
     mlx_put_image_to_window(all->mlx, all->win, all->data.img, 0, 0);
@@ -293,6 +330,9 @@ int main()
     mlx_hook(all->win, 2, 0, key_hook, all);
     mlx_hook(all->win, 3, 0, key_released, all);
     mlx_loop_hook(all->mlx, loop, all);
+
+    // mlx_loop_hook(all->mlx, draw_simple_texture, all);
+
     mlx_loop(all->mlx);
     return 0;
 }

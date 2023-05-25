@@ -33,7 +33,7 @@ extern int grid[15][15];
 
 typedef struct	s_data {
 	void	*img;
-	char	*addr;
+    char    *addr;
 	int		bits_per_pixel;
 	int		line_length;
 	int		endian;
@@ -67,10 +67,13 @@ typedef struct	s_ray
 typedef struct s_all
 {
     t_data			data;
+    t_data			data_wall;
     void			*mlx;
     void			*win;
     t_player		*player;
     t_ray			rays[NUMBER_RAYS];
+    void            *wall;
+    unsigned int    *array;
 } t_all;
 
 void    set_hitted_point(t_point player, t_ray *ray);
@@ -78,5 +81,5 @@ void	my_mlx_pixel_put(t_all *all, int x, int y, int color);
 void	render3d_projection(t_all *all);
 
 
-uint32_t    **generate_simple_texture();
+uint32_t    *generate_simple_texture();
 # endif
