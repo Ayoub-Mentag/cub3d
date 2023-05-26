@@ -70,6 +70,8 @@ void    draw_player(t_all *all)
     }
 }
 
+
+
 int    update_coordination(t_all *all)
 {
 	int		d1;
@@ -91,7 +93,14 @@ int    update_coordination(t_all *all)
 
     if (grid[d2 / TILE_SIZE][d1 / TILE_SIZE] == 1)
         return (1);
-
+    if (grid[(d2 - SIDE / 2) / TILE_SIZE][d1 / TILE_SIZE] == 1)
+        return (1);
+    if (grid[(d2 + SIDE / 2) / TILE_SIZE][d1 / TILE_SIZE] == 1)
+        return (1);
+    if (grid[d2 / TILE_SIZE][(d1 - SIDE / 2) / TILE_SIZE] == 1)
+        return (1);
+    if (grid[(d2 - SIDE / 2) / TILE_SIZE][(d1 + SIDE / 2) / TILE_SIZE] == 1)
+        return (1);
 	all->player->coor.x = newPlayerX;
 	all->player->coor.y = newPlayerY;
     return (1);
@@ -201,7 +210,7 @@ void    set_player(t_all *all)
     if (!player)
         exit(1);
     init_player(&player->coor);
-    player->side = 10;
+    player->side = SIDE;
     player->turnDirection = 0;
     player->walkDirection = 0;
     player->rotationAngle = M_PI / 2;
@@ -224,18 +233,11 @@ t_all   *init_all()
     all->mlx = mlx;
     all->win = win;
     all->data.img = mlx_new_image(all->mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	all->data.addr = mlx_get_data_addr(all->data.img,   &all->data.bits_per_pixel, &all->data.line_length,&all->data.endian);
+	all->data.addr = mlx_get_data_addr(all->data.img, &all->data.bits_per_pixel, &all->data.line_length,&all->data.endian);
 
-    all->data_wall.img = mlx_xpm_file_to_image(mlx, "./textures/wall.xpm", malloc(sizeof(int)), malloc(sizeof(int)));
+    all->data_wall.img = mlx_xpm_file_to_image(mlx, "./textures/north.xpm", malloc(sizeof(int)), malloc(sizeof(int)));
     all->data_wall.addr = mlx_get_data_addr(all->data_wall.img, &all->data_wall.bits_per_pixel, &all->data_wall.line_length,&all->data_wall.endian);
-    all->array = malloc(sizeof(unsigned int) * TEXT_WIDTH * TEXT_HEIGHT);
-    for (int i = 0; i < TEXT_HEIGHT; i++)
-    {
-        for (int j = 0; j < TEXT_WIDTH; j++)
-        {
-            all->array[i * TEXT_HEIGHT + j] = *(unsigned int*)all->data_wall.addr + (i * all->data.line_length + j * (all->data.bits_per_pixel / 8));
-        }
-    }
+    all->array = (unsigned int *)all->data_wall.addr;
     return (all);
 }
 
@@ -290,10 +292,10 @@ void    clear_image(t_all *all)
 void    draw_texture(t_all *all, uint32_t *simple, int x, int y)
 {
     for (int i = 0; i < TEXT_HEIGHT; i++)
-    {
+    {   
         for (int j = 0; j < TEXT_WIDTH; j++)
         {
-            my_mlx_pixel_put(all, j + x * 32, i + y * 32, simple[i * TEXT_HEIGHT + j]);
+            my_mlx_pixel_put(all, j + x * TEXT_WIDTH, i + y * TEXT_WIDTH, simple[i * TEXT_HEIGHT + j]);
         }
     }
 }

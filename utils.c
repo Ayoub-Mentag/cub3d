@@ -10,8 +10,8 @@ int hits_wall(double x, double y)
 {
     if (x < 0 || x > WINDOW_WIDTH || y < 0 || y > WINDOW_HEIGHT)
         return 1;
-    int i = floor(y / 32);
-    int j = floor(x / 32);
+    int i = floor(y / TILE_SIZE);
+    int j = floor(x / TILE_SIZE);
     if (i >= 15 || j >= 15)
         return (1);
     return (grid[i][j] == 1);
@@ -75,13 +75,12 @@ t_point get_horizontal(t_point player, double angle, int down, int left, int *fo
     ystep = TILE_SIZE;
     ystep *= !down ? -1 : 1;
 
-    xstep = TILE_SIZE/ tan(angle);
+    xstep = TILE_SIZE / tan(angle);
     xstep *= (left && xstep > 0) ? -1 : 1;
     xstep *= (!left && xstep < 0) ? -1 : 1;
 
 
     // Increment xstep and ystep until we find a wall
-    // while (i.x >= 0 && i.x <= WINDOW_WIDTH && i.y >= 0 && i.y <= WINDOW_HEIGHT) 
     while (1)
     {
         if (hits_wall(first.x, first.y - !down)) {

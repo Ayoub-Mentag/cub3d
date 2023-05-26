@@ -13,20 +13,20 @@
 # define WINDOW_HEIGHT 1024
 # define THICK 1
 # define NUMBER_RAYS (WINDOW_WIDTH / THICK)
-# define SIDE 32
-# define TILE_SIZE 32
-# define MINIMAP_SCALE_FACTORY 0.5
+# define SIDE 20
+# define TILE_SIZE 64
+# define MINIMAP_SCALE_FACTORY 0.2
 
 # define UP_ARROW 126
 # define DOWN_ARROW 125
 # define RIGHT_ARROW 124
 # define LEFT_ARROW 123
-# define MOVE_SPEED 2
+# define MOVE_SPEED 5
 # define FOV_ANGLE (M_PI / 3)
 
 
-# define TEXT_WIDTH 32
-# define TEXT_HEIGHT 32
+# define TEXT_WIDTH 64
+# define TEXT_HEIGHT 64
 
 extern int grid[15][15];
 

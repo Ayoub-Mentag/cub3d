@@ -21,8 +21,8 @@ void draw_rectangle(t_all *all, t_ray ray, int x, int height)
     int color;
     int i;
     int y = (WINDOW_HEIGHT / 2) - (height / 2);
-    uint32_t    *simple_texture = generate_simple_texture();
-    // unsigned int *simple_texture = all->array;
+    // uint32_t    *simple_texture = generate_simple_texture();
+    unsigned int *simple_texture = all->array;
 
     t_point p;
 

@@ -11,7 +11,7 @@ uint32_t    *generate_simple_texture()
     {
         line = i / TEXT_HEIGHT;
         column = i % TEXT_WIDTH;
-        if (line % 4 && column % 4)
+        if (line % 8 && column % 8)
         {
             simple_texture[i] = 0x00ff00;
         }
