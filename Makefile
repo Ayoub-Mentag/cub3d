@@ -1,5 +1,10 @@
-SRC = main.c utils.c rendering3dwalls.c textures.c
-SRC_OBJ = main.o utils.o rendering3dwalls.o textures.o
+
+
+UTILS = utils/rendering3dwalls.c utils/clear.c utils/distance_ray.c utils/drawing.c utils/init_set.c
+SRCS = main.c ${UTILS}
+
+OBJS = ${SRCS:.c=.o}
+
 CFLAGS = -Wall -Wextra -Werror -Ofast
 LINKS = -lmlx -framework OpenGL -framework AppKit
 
@@ -7,15 +12,14 @@ NAME = cub3d
 
 all : $(NAME)
 
-$(NAME): $(SRC_OBJ)
-	@$(CC) $(CFLAGS) $(SRC_OBJ) $(LINKS) -o $(NAME)
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LINKS) -o $(NAME)
 
-%.o : %.c
-	@$(CC) $(CFLAGS) -c $<
-
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean :
-	@rm -rf *.o
+	@rm -rf ${OBJS}
 
 fclean : clean
 	@rm -rf $(NAME)

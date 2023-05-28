@@ -1,4 +1,4 @@
-#include "cub3d.h"
+#include "../cub3d.h"
 
 
 double distanceBetweenPoints(double x1, double y1, double x2, double y2)

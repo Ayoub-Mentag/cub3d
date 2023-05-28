@@ -15,10 +15,12 @@
 # define NUMBER_RAYS (WINDOW_WIDTH / THICK)
 # define SIDE 20
 # define TILE_SIZE 64
-# define MINIMAP_SCALE_FACTORY 0.2
+# define MINIMAP_SCALE_FACTORY 1
 
-# define UP_ARROW 126
-# define DOWN_ARROW 125
+# define A 0
+# define S 1
+# define D 2
+# define W 13
 # define RIGHT_ARROW 124
 # define LEFT_ARROW 123
 # define MOVE_SPEED 5
@@ -67,19 +69,38 @@ typedef struct	s_ray
 typedef struct s_all
 {
     t_data			data;
-    t_data			data_wall;
+    t_data			north;
+    t_data			south;
+    t_data			west;
+    t_data			east;
     void			*mlx;
     void			*win;
     t_player		*player;
     t_ray			rays[NUMBER_RAYS];
     void            *wall;
-    unsigned int    *array;
+    unsigned int    *north_array;
+    unsigned int    *south_array;
+    unsigned int    *west_array;
+    unsigned int    *east_array;
 } t_all;
+
+
 
 void    set_hitted_point(t_point player, t_ray *ray);
 void	my_mlx_pixel_put(t_all *all, int x, int y, int color);
 void	render3d_projection(t_all *all);
+void    clear_image(t_all *all);
+void    set_hitted_point(t_point player, t_ray *ray);
+void    render3d_projection(t_all *all);
+t_all   *init_all();
+void    set_player(t_all *all);
+void    init_player(t_point *coor);
+void    set_rays(t_all *all);
+void    draw_line(t_all *all, t_point a, t_point b);
+void    draw_player(t_all *all);
+void    draw_square(t_all *all, int x, int y, int color);
+void    draw_rays(t_all *all);
+void    draw_mini_map(t_all *all);
+int    update_coordination(t_all *all);
 
-
-uint32_t    *generate_simple_texture();
 # endif
