@@ -15,7 +15,7 @@
 # define NUMBER_RAYS (WINDOW_WIDTH / THICK)
 # define SIDE 20
 # define TILE_SIZE 64
-# define MINIMAP_SCALE_FACTORY 1
+# define MINIMAP_SCALE_FACTORY 0.2
 
 # define A 0
 # define S 1

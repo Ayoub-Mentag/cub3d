@@ -3,6 +3,7 @@
         "complex": "c",
         "__locale": "c",
         "cub3d.h": "c",
-        "chrono": "c"
+        "chrono": "c",
+        "ios": "c"
     }
 }
